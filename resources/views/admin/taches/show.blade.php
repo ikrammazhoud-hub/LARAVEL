@@ -92,5 +92,32 @@
         @endif
     </div>
 
+    @php
+        $rapportFinal = $tache->rapports->sortByDesc('created_at')->first();
+    @endphp
+
+    @if($rapportFinal)
+        <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p class="text-xs font-black text-emerald-600 uppercase tracking-widest">Rapport final associé</p>
+                    <h2 class="text-xl font-extrabold text-slate-900 mt-1">PDF généré automatiquement</h2>
+                    <p class="text-sm text-slate-500 mt-2">
+                        Généré {{ $rapportFinal->pdf_generated_at?->format('d/m/Y H:i') ?? $rapportFinal->created_at->format('d/m/Y H:i') }}.
+                    </p>
+                </div>
+                <a href="{{ route('admin.rapport.pdf', $rapportFinal) }}" class="btn-primary">Télécharger le PDF</a>
+            </div>
+            <div class="mt-6 border-t border-slate-100 pt-5">
+                <p class="form-label">Résumé du rapport</p>
+                <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ $rapportFinal->contenu }}</p>
+            </div>
+        </div>
+    @elseif($tache->statut === 'terminé')
+        <div class="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-amber-800 font-bold">
+            Cette tâche est terminée, mais aucun rapport final n'est encore associé.
+        </div>
+    @endif
+
 </div>
 @endsection

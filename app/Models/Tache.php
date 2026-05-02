@@ -62,6 +62,18 @@ class Tache extends Model
         return $this->hasMany(Intervention::class);
     }
 
+    public function rapports(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Rapport::class,
+            Intervention::class,
+            'tache_id',
+            'intervention_id',
+            'id',
+            'id'
+        );
+    }
+
     /* ------------------------------------------------------------------ */
     /*  Scopes                                                              */
     /* ------------------------------------------------------------------ */

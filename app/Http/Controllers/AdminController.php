@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\DashboardService;
+use App\Services\RapportFinalService;
 use App\Models\Rapport;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -15,7 +15,10 @@ class AdminController extends Controller
 {
     protected DashboardService $dashboardService;
 
-    public function __construct(DashboardService $dashboardService)
+    public function __construct(
+        DashboardService $dashboardService,
+        private RapportFinalService $rapportFinalService
+    )
     {
         $this->dashboardService = $dashboardService;
     }
@@ -35,10 +38,15 @@ class AdminController extends Controller
      */
     public function exportPdf(Rapport $rapport): \Symfony\Component\HttpFoundation\Response
     {
-        $rapport->load(['intervention.machine', 'intervention.technicien.user']);
+        $rapport->load(['intervention.machine', 'intervention.technicien.user', 'intervention.tache']);
 
-        $pdf = Pdf::loadView('admin.rapport_pdf', compact('rapport'));
+        if (! $rapport->pdf_path || ! Storage::disk('public')->exists($rapport->pdf_path)) {
+            $rapport = $this->rapportFinalService->genererPdf($rapport);
+        }
 
-        return $pdf->download('rapport_intervention_' . $rapport->id . '.pdf');
+        return Storage::disk('public')->download(
+            $rapport->pdf_path,
+            'rapport_final_tache_' . ($rapport->intervention->tache_id ?? $rapport->id) . '.pdf'
+        );
     }
 }

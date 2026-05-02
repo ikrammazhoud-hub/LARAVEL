@@ -3,95 +3,159 @@
 @section('header', 'Aperçu Global')
 
 @section('content')
-<!-- Stats Grid -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-    <!-- Card Machines -->
-    <div class="group relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl shadow-brand-500/5 hover:-translate-y-1 transition-all duration-300">
-        <div class="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
-            <span class="text-6xl filter drop-shadow-lg">⚙️</span>
-        </div>
-        <div class="relative z-10 flex flex-col h-full justify-between">
-            <div>
-                <div class="inline-flex items-center justify-center p-3 bg-brand-100 text-brand-600 rounded-2xl mb-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </div>
-                <h3 class="text-slate-500 text-sm font-bold uppercase tracking-widest mb-1">Machines</h3>
+<div class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <a href="{{ route('admin.taches.index') }}" class="metric-card hover:-translate-y-1 transition">
+            <p class="metric-label">Tâches suivies</p>
+            <div class="mt-4 flex items-end justify-between">
+                <span class="metric-value">{{ $tachesTotal }}</span>
+                <span class="task-pill task-pill-blue">{{ $tauxCompletion }}% clôturé</span>
             </div>
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-teal-400">{{ $machinesCount }}</span>
-                <span class="text-sm font-medium text-slate-400">enregistrées</span>
+        </a>
+        <a href="{{ route('admin.taches.index') }}" class="metric-card hover:-translate-y-1 transition">
+            <p class="metric-label">En cours</p>
+            <div class="mt-4 flex items-end justify-between">
+                <span class="metric-value text-blue-600">{{ $tachesEnCours }}</span>
+                <span class="status-dot bg-blue-500"></span>
             </div>
-        </div>
+        </a>
+        <a href="#rapports" class="metric-card hover:-translate-y-1 transition">
+            <p class="metric-label">Rapports PDF</p>
+            <div class="mt-4 flex items-end justify-between">
+                <span class="metric-value text-emerald-600">{{ $rapportsPdfGeneres }}</span>
+                <span class="text-xs font-extrabold text-slate-400">{{ $rapportsCount }} total</span>
+            </div>
+        </a>
+        <a href="{{ route('admin.taches.index') }}" class="metric-card hover:-translate-y-1 transition">
+            <p class="metric-label">Points à surveiller</p>
+            <div class="mt-4 flex items-end justify-between">
+                <span class="metric-value text-red-600">{{ $tachesEnRetard }}</span>
+                <span class="text-xs font-extrabold text-slate-400">{{ $tachesSansRetour }} sans retour</span>
+            </div>
+        </a>
     </div>
 
-    <!-- Card Tâches -->
-    <div class="group relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl shadow-orange-500/5 hover:-translate-y-1 transition-all duration-300">
-        <div class="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
-            <span class="text-6xl filter drop-shadow-lg">🚧</span>
-        </div>
-        <div class="relative z-10 flex flex-col h-full justify-between">
-            <div>
-                <div class="inline-flex items-center justify-center p-3 bg-orange-100 text-orange-600 rounded-2xl mb-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <section class="xl:col-span-2 glass-panel rounded-lg border border-white/70 overflow-hidden">
+            <div class="p-6 border-b border-slate-200/70 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p class="modal-kicker">Suivi continu</p>
+                    <h3 class="text-xl font-extrabold text-slate-900 mt-1">État des tâches en temps réel</h3>
+                    <p class="text-sm text-slate-500 mt-1">Vérifiez l'avancement et ouvrez le rapport final dès qu'une tâche est clôturée.</p>
                 </div>
-                <h3 class="text-slate-500 text-sm font-bold uppercase tracking-widest mb-1">Tâches</h3>
+                <a href="{{ route('admin.taches.index') }}" class="btn-secondary">Toutes les tâches</a>
             </div>
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-amber-400">{{ $tachesEnCours }}</span>
-                <span class="text-sm font-medium text-slate-400">en cours</span>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-black uppercase tracking-widest">Tâche</th>
+                            <th class="px-6 py-4 text-xs font-black uppercase tracking-widest">Technicien</th>
+                            <th class="px-6 py-4 text-xs font-black uppercase tracking-widest">État</th>
+                            <th class="px-6 py-4 text-xs font-black uppercase tracking-widest">Rapport</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white/70">
+                        @forelse($suiviTaches as $tache)
+                            @php
+                                $rapport = $tache->rapports->sortByDesc('created_at')->first();
+                                $statusClass = match($tache->statut) {
+                                    'en cours' => 'task-pill-blue',
+                                    'terminé' => 'task-pill-emerald',
+                                    default => 'task-pill-slate',
+                                };
+                            @endphp
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('admin.taches.show', $tache) }}" class="font-extrabold text-slate-900 hover:text-brand-700">{{ $tache->titre }}</a>
+                                    <p class="text-xs text-slate-500 mt-1">{{ $tache->machine?->nom ?? 'Aucune machine liée' }}</p>
+                                </td>
+                                <td class="px-6 py-4 text-sm font-bold text-slate-600">{{ $tache->technicien?->user?->name ?? '—' }}</td>
+                                <td class="px-6 py-4"><span class="task-pill {{ $statusClass }}">{{ ucfirst($tache->statut) }}</span></td>
+                                <td class="px-6 py-4">
+                                    @if($rapport)
+                                        <a href="{{ route('admin.rapport.pdf', $rapport) }}" class="text-sm font-extrabold text-brand-600 hover:text-brand-700">PDF final</a>
+                                    @elseif($tache->statut === 'terminé')
+                                        <span class="task-pill task-pill-amber">À générer</span>
+                                    @else
+                                        <span class="text-sm font-bold text-slate-400">En attente</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="px-6 py-12 text-center font-bold text-slate-400">Aucune tâche à suivre.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </section>
+
+        <aside class="glass-panel rounded-lg border border-white/70 p-6">
+            <p class="modal-kicker">Vue globale</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-1">Répartition des statuts</h3>
+            <div class="h-64 mt-6"><canvas id="tasksStatusChart"></canvas></div>
+        </aside>
     </div>
 
-    <!-- Card Techniciens -->
-    <div class="group relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-xl shadow-blue-500/5 hover:-translate-y-1 transition-all duration-300">
-        <div class="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
-            <span class="text-6xl filter drop-shadow-lg">👨‍🔧</span>
-        </div>
-        <div class="relative z-10 flex flex-col h-full justify-between">
-            <div>
-                <div class="inline-flex items-center justify-center p-3 bg-blue-100 text-blue-600 rounded-2xl mb-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                </div>
-                <h3 class="text-slate-500 text-sm font-bold uppercase tracking-widest mb-1">Techniciens</h3>
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <section class="glass-panel rounded-lg border border-white/70 p-6">
+            <p class="modal-kicker">Priorités</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-1">Charge par urgence</h3>
+            <div class="h-64 mt-6"><canvas id="tasksPriorityChart"></canvas></div>
+        </section>
+
+        <section id="rapports" class="xl:col-span-2 glass-panel rounded-lg border border-white/70 overflow-hidden">
+            <div class="p-6 border-b border-slate-200/70">
+                <p class="modal-kicker">Rapports finaux</p>
+                <h3 class="text-xl font-extrabold text-slate-900 mt-1">Derniers rapports générés</h3>
             </div>
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-400">{{ $techniciensActifs }}</span>
-                <span class="text-sm font-medium text-slate-400">actifs</span>
+            <div class="divide-y divide-slate-200/70 bg-white/60">
+                @forelse($rapportsRecents as $rapport)
+                    <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <p class="font-extrabold text-slate-900">{{ $rapport->intervention?->tache?->titre ?? 'Rapport intervention #' . $rapport->intervention_id }}</p>
+                            <p class="text-sm text-slate-500 mt-1">
+                                {{ $rapport->intervention?->technicien?->user?->name ?? 'Technicien inconnu' }}
+                                · {{ $rapport->intervention?->machine?->nom ?? 'Machine inconnue' }}
+                            </p>
+                            <p class="text-xs font-bold text-slate-400 mt-1">
+                                Généré {{ $rapport->pdf_generated_at?->diffForHumans() ?? $rapport->created_at->diffForHumans() }}
+                            </p>
+                        </div>
+                        <a href="{{ route('admin.rapport.pdf', $rapport) }}" class="btn-primary">Télécharger PDF</a>
+                    </div>
+                @empty
+                    <div class="p-10 text-center font-bold text-slate-400">Aucun rapport final généré pour le moment.</div>
+                @endforelse
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
-<!-- Info Section -->
-<div class="bg-white/60 backdrop-blur-2xl rounded-3xl shadow-lg border border-white overflow-hidden relative">
-    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-100 to-transparent opacity-50 rounded-full blur-3xl -z-10 transform translate-x-1/2 -translate-y-1/2"></div>
-    
-    <div class="p-8 border-b border-white/50 flex justify-between items-center bg-white/40">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <h3 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">Guide des Statuts Machines</h3>
-        </div>
-    </div>
-    
-    <div class="p-8">
-        <p class="text-slate-500 text-base font-medium mb-6">Légende des états pour la surveillance de l'atelier :</p>
-        <div class="flex flex-wrap gap-4">
-            <div class="flex items-center gap-2 px-5 py-2.5 bg-brand-50 border border-brand-100 rounded-xl shadow-sm hover:shadow-md transition cursor-default">
-                <span class="w-3 h-3 rounded-full bg-brand-500 animate-pulse"></span>
-                <span class="text-sm font-bold text-brand-700 uppercase tracking-wide">Actif</span>
-            </div>
-            <div class="flex items-center gap-2 px-5 py-2.5 bg-red-50 border border-red-100 rounded-xl shadow-sm hover:shadow-md transition cursor-default">
-                <span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
-                <span class="text-sm font-bold text-red-700 uppercase tracking-wide">Panne</span>
-            </div>
-            <div class="flex items-center gap-2 px-5 py-2.5 bg-amber-50 border border-amber-100 rounded-xl shadow-sm hover:shadow-md transition cursor-default">
-                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                <span class="text-sm font-bold text-amber-700 uppercase tracking-wide">Maintenance</span>
-            </div>
-        </div>
-    </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const status = @json($chartTachesStatuts);
+        const priorities = @json($chartTachesPriorites);
+
+        new Chart(document.getElementById('tasksStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: status.labels,
+                datasets: [{ data: status.data, backgroundColor: ['#94a3b8', '#3b82f6', '#10b981'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('tasksPriorityChart'), {
+            type: 'bar',
+            data: {
+                labels: priorities.labels,
+                datasets: [{ label: 'Tâches', data: priorities.data, backgroundColor: ['#14b8a6', '#f59e0b', '#ef4444'], borderRadius: 8 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+    });
+</script>
 @endsection

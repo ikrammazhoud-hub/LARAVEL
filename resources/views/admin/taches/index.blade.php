@@ -38,6 +38,7 @@
                 <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest">Sujet / Description</th>
                 <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest">Assigné à</th>
                 <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest">Priorité</th>
+                <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest">Statut</th>
                 <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest">Deadline</th>
                 <th class="px-8 py-5 text-sm font-bold uppercase tracking-widest text-right">Actions</th>
             </tr>
@@ -61,12 +62,21 @@
                         {{ $tache->priorite }}
                     </span>
                 </td>
+                <td class="px-8 py-6">
+                    <span class="task-pill {{ $tache->statut === 'terminé' ? 'task-pill-emerald' : ($tache->statut === 'en cours' ? 'task-pill-blue' : 'task-pill-slate') }}">
+                        {{ ucfirst($tache->statut) }}
+                    </span>
+                </td>
                 <td class="px-8 py-6 text-indigo-600">
                     📅 {{ $tache->date_deadline->format('d/m/Y') }}
                 </td>
                 <td class="px-8 py-6 text-right">
+                    @php $rapport = $tache->rapports->sortByDesc('created_at')->first(); @endphp
                     <div class="flex items-center justify-end gap-3">
                         <a href="{{ route('admin.taches.show', $tache) }}" class="text-xs font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition">Voir</a>
+                        @if($rapport)
+                            <a href="{{ route('admin.rapport.pdf', $rapport) }}" class="text-xs font-black text-emerald-600 hover:text-emerald-700 uppercase tracking-widest transition">Rapport</a>
+                        @endif
                         <a href="{{ route('admin.taches.edit', $tache) }}" class="text-xs font-black text-brand-600 hover:text-brand-700 uppercase tracking-widest transition">Modifier</a>
                     <form action="{{ route('admin.taches.destroy', $tache) }}" method="POST" class="inline">
                         @csrf @method('DELETE')

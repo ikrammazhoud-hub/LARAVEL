@@ -7,8 +7,11 @@ use App\Models\Rapport;
 use App\Models\Tache;
 use App\Models\Technicien;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 test('technician can start and complete an assigned task', function () {
+    Storage::fake('public');
+
     $user = User::factory()->create(['role' => 'technicien']);
     $technicien = Technicien::create([
         'user_id' => $user->id,
@@ -44,9 +47,16 @@ test('technician can start and complete an assigned task', function () {
         'statut' => 'terminé',
     ])->assertRedirect();
     expect($tache->fresh()->statut)->toBe('terminé');
+
+    $rapport = Rapport::whereHas('intervention', fn ($query) => $query->where('tache_id', $tache->id))->firstOrFail();
+    expect($rapport->pdf_path)->not->toBeNull();
+    expect($rapport->pdf_generated_at)->not->toBeNull();
+    Storage::disk('public')->assertExists($rapport->pdf_path);
 });
 
 test('technician report submission closes the task and creates intervention records', function () {
+    Storage::fake('public');
+
     $user = User::factory()->create(['role' => 'technicien']);
     $technicien = Technicien::create([
         'user_id' => $user->id,
@@ -80,6 +90,10 @@ test('technician report submission closes the task and creates intervention reco
     expect($tache->fresh()->statut)->toBe('terminé');
     expect(Intervention::where('tache_id', $tache->id)->where('statut', 'terminee')->exists())->toBeTrue();
     expect(Rapport::whereHas('intervention', fn ($query) => $query->where('tache_id', $tache->id))->exists())->toBeTrue();
+
+    $rapport = Rapport::whereHas('intervention', fn ($query) => $query->where('tache_id', $tache->id))->firstOrFail();
+    expect($rapport->contenu)->toContain('Remplacement effectue');
+    Storage::disk('public')->assertExists($rapport->pdf_path);
 });
 
 test('technician cannot update another technician task', function () {

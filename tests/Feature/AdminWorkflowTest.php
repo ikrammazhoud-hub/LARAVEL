@@ -7,7 +7,9 @@ use App\Models\Rapport;
 use App\Models\Tache;
 use App\Models\Technicien;
 use App\Models\User;
+use App\Services\RapportFinalService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 test('admin can use the main management workflows', function () {
     $admin = User::factory()->create(['role' => 'admin']);
@@ -154,4 +156,53 @@ test('admin list pages show pagination when records grow', function () {
     $this->get(route('admin.machines.index'))->assertOk()->assertSee('pagination');
     $this->get(route('admin.techniciens.index'))->assertOk()->assertSee('pagination');
     $this->get(route('admin.taches.index'))->assertOk()->assertSee('pagination');
+});
+
+test('admin dashboard shows task tracking charts and final report links', function () {
+    Storage::fake('public');
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'technicien']);
+    $technicien = Technicien::create([
+        'user_id' => $user->id,
+        'specialite' => 'Rapports',
+        'telephone' => '0600000099',
+        'matricule' => 'REPORT-DASH',
+        'disponible' => true,
+    ]);
+    $machine = Machine::create([
+        'nom' => 'Machine Rapport Dashboard',
+        'etat' => 'ACTIF',
+        'localisation' => 'Zone Rapport',
+    ]);
+    $tache = Tache::create([
+        'technicien_id' => $technicien->id,
+        'machine_id' => $machine->id,
+        'titre' => 'Dashboard final report task',
+        'description' => 'Cloture avec rapport final.',
+        'priorite' => 'haute',
+        'statut' => 'en cours',
+        'date_deadline' => now()->addDay()->format('Y-m-d'),
+    ]);
+
+    $rapport = app(RapportFinalService::class)->finaliserTache($tache, 'Rapport final pour le dashboard.');
+
+    $this->actingAs($admin)
+        ->get(route('admin.dashboard'))
+        ->assertOk()
+        ->assertSee('État des tâches en temps réel')
+        ->assertSee('tasksStatusChart')
+        ->assertSee('tasksPriorityChart')
+        ->assertSee('Dashboard final report task')
+        ->assertSee(route('admin.rapport.pdf', $rapport), false);
+
+    $this->actingAs($admin)
+        ->get(route('admin.taches.show', $tache))
+        ->assertOk()
+        ->assertSee('Rapport final associé')
+        ->assertSee('Télécharger le PDF');
+
+    $this->actingAs($admin)
+        ->get(route('admin.rapport.pdf', $rapport))
+        ->assertOk();
 });

@@ -26,6 +26,10 @@
     <div class="details">
         <table>
             <tr>
+                <th>Tâche Associée</th>
+                <td><strong>{{ $rapport->intervention->tache->titre ?? 'Intervention indépendante' }}</strong></td>
+            </tr>
+            <tr>
                 <th>Machine Ciblée</th>
                 <td><strong>{{ $rapport->intervention->machine->nom ?? 'Inconnue' }}</strong></td>
             </tr>
@@ -41,6 +45,10 @@
                 <th>Date / Heure de Fin</th>
                 <td>{{ $rapport->intervention->date_fin ? $rapport->intervention->date_fin->format('d/m/Y H:i') : 'N/A' }}</td>
             </tr>
+            <tr>
+                <th>Statut du Rapport</th>
+                <td>Rapport final PDF généré automatiquement{{ $rapport->pdf_generated_at ? ' le ' . $rapport->pdf_generated_at->format('d/m/Y H:i') : '' }}</td>
+            </tr>
         </table>
     </div>
 
@@ -50,6 +58,21 @@
             {{ $rapport->contenu }}
         </p>
     </div>
+
+    @if($rapport->observations || $rapport->pieces_changees || $rapport->recommandations)
+    <div class="content-box">
+        <div class="content-title">Suivi complémentaire</div>
+        @if($rapport->observations)
+            <p><strong>Observations :</strong> {{ $rapport->observations }}</p>
+        @endif
+        @if($rapport->pieces_changees)
+            <p><strong>Pièces changées :</strong> {{ $rapport->pieces_changees }}</p>
+        @endif
+        @if($rapport->recommandations)
+            <p><strong>Recommandations :</strong> {{ $rapport->recommandations }}</p>
+        @endif
+    </div>
+    @endif
 
     <div class="footer">
         Gestion d'Atelier Industriel - Généré automatiquement par la plateforme.

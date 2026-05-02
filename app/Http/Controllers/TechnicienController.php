@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tache;
-use App\Models\Intervention;
-use App\Models\Rapport;
 use App\Models\Machine;
+use App\Services\RapportFinalService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TechnicienController extends Controller
 {
+    public function __construct(private RapportFinalService $rapportFinalService)
+    {
+    }
+
     public function dashboard(): View
     {
         $technicien = $this->currentTechnicien();
@@ -118,16 +121,21 @@ class TechnicienController extends Controller
         $technicien = auth()->user()->technicien;
         abort_unless($technicien && $tache->technicien_id === $technicien->id, 403);
 
-        $tache->update(['statut' => $validated['statut']]);
+        if ($validated['statut'] === 'en cours') {
+            $this->rapportFinalService->demarrerTache($tache);
+
+            return redirect()->back()->with('success', 'Tâche démarrée et suivi ouvert.');
+        }
 
         if ($validated['statut'] === 'terminé') {
-            Intervention::where('tache_id', $tache->id)
-                ->whereNull('date_fin')
-                ->update([
-                    'statut' => 'terminee',
-                    'date_fin' => now(),
-                ]);
+            $rapport = $this->rapportFinalService->finaliserTache($tache);
+
+            return redirect()
+                ->back()
+                ->with('success', 'Tâche clôturée. Rapport final PDF généré automatiquement (#' . $rapport->id . ').');
         }
+
+        $tache->update(['statut' => $validated['statut']]);
 
         return redirect()->back()->with('success', 'Statut mis à jour.');
     }
@@ -142,37 +150,15 @@ class TechnicienController extends Controller
         $technicien = auth()->user()->technicien;
         abort_unless($technicien && $tache->technicien_id === $technicien->id, 403);
 
-        $machineId = $validated['machine_id'] ?? $tache->machine_id;
-
-        if (! $machineId) {
-            return back()
-                ->withErrors(['machine_id' => 'Veuillez sélectionner une machine.'])
-                ->withInput();
-        }
-
-        // Créer l'intervention
-        $intervention = Intervention::create([
-            'machine_id' => $machineId,
-            'technicien_id' => $technicien->id,
-            'tache_id' => $tache->id,
-            'description' => $validated['contenu'],
-            'statut' => 'terminee',
-            'date_debut' => now()->subHours(2), // Example
-            'date_fin' => now()
-        ]);
-
-        // Créer le rapport
-        $rapport = Rapport::create([
-            'intervention_id' => $intervention->id,
-            'contenu' => $request->contenu
-        ]);
-
-        // Finaliser la tâche
-        $tache->update(['statut' => 'terminé']);
+        $rapport = $this->rapportFinalService->finaliserTache(
+            $tache,
+            $validated['contenu'],
+            $validated['machine_id'] ?? null
+        );
 
         return redirect()
             ->route('technicien.dashboard')
-            ->with('success', 'Rapport soumis et tâche clôturée.');
+            ->with('success', 'Rapport soumis, PDF final généré et tâche clôturée (#' . $rapport->id . ').');
     }
 
     private function currentTechnicien()

@@ -9,12 +9,12 @@ class TacheRepository
 {
     public function all(int $perPage = 15): LengthAwarePaginator
     {
-        return Tache::with(['technicien.user', 'machine'])->orderBy('date_deadline')->paginate($perPage);
+        return Tache::with(['technicien.user', 'machine', 'rapports'])->orderBy('date_deadline')->paginate($perPage);
     }
 
     public function find(int $id): Tache
     {
-        return Tache::with(['technicien.user', 'machine'])->findOrFail($id);
+        return Tache::with(['technicien.user', 'machine', 'rapports'])->findOrFail($id);
     }
 
     public function create(array $data): Tache

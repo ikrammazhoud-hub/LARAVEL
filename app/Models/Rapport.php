@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $observations
  * @property string|null $pieces_changees
  * @property string|null $recommandations
+ * @property string|null $pdf_path
+ * @property \Carbon\Carbon|null $pdf_generated_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -27,6 +29,12 @@ class Rapport extends Model
         'observations',
         'pieces_changees',
         'recommandations',
+        'pdf_path',
+        'pdf_generated_at',
+    ];
+
+    protected $casts = [
+        'pdf_generated_at' => 'datetime',
     ];
 
     /* ------------------------------------------------------------------ */
