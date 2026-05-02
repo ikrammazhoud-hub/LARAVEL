@@ -50,6 +50,7 @@ class DashboardService
             // Techniciens
             'techniciensCount'      => Technicien::count(),
             'techniciensDisponibles'=> Technicien::where('disponible', true)->count(),
+            'techniciensActifs'     => Technicien::where('disponible', true)->count(),
 
             // Rapports & Interventions
             'rapportsCount'      => Rapport::count(),

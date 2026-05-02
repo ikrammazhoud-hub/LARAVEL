@@ -2,7 +2,7 @@
 
 ## 📋 Vue d'ensemble
 
-Atelier Pro est une plateforme de gestion d'atelier de maintenance industrielle construite avec Laravel 11, suivant les principes de l'architecture propre et la séparation des responsabilités.
+Atelier Pro est une plateforme de gestion d'atelier de maintenance industrielle construite avec Laravel 13, suivant les principes de l'architecture propre et la séparation des responsabilités.
 
 ## 🏗️ Architecture
 

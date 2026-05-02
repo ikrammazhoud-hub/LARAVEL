@@ -21,9 +21,9 @@ class TacheRequest extends FormRequest
             'machine_id'    => 'nullable|exists:machines,id',
             'titre'         => 'required|string|max:255',
             'description'   => 'nullable|string|max:5000',
-            'priorite'      => 'required|in:basse,normale,haute,urgente',
+            'priorite'      => 'required|in:basse,moyenne,haute',
             'statut'        => 'nullable|in:en attente,en cours,terminé',
-            'date_deadline' => 'nullable|date|after_or_equal:today',
+            'date_deadline' => 'required|date|after_or_equal:today',
         ];
     }
 
@@ -34,7 +34,8 @@ class TacheRequest extends FormRequest
             'technicien_id.exists'     => 'Le technicien sélectionné est invalide.',
             'titre.required'           => 'Le titre de la tâche est obligatoire.',
             'priorite.required'        => 'La priorité est obligatoire.',
-            'priorite.in'              => 'La priorité doit être : basse, normale, haute ou urgente.',
+            'priorite.in'              => 'La priorité doit être : basse, moyenne ou haute.',
+            'date_deadline.required'   => 'La date limite est obligatoire.',
             'statut.in'                => 'Le statut doit être : en attente, en cours ou terminé.',
             'date_deadline.after_or_equal' => 'La date limite ne peut pas être dans le passé.',
         ];

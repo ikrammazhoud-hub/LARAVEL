@@ -4,8 +4,14 @@
 
 @section('content')
 <div class="mb-6 flex justify-between items-center">
-    <h3 class="text-xl font-bold">Liste des Machines</h3>
-    <button onclick="document.getElementById('modal-add').classList.remove('hidden')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-bold">+ Ajouter une Machine</button>
+    <div>
+        <h3 class="text-xl font-bold text-slate-900">Liste des machines</h3>
+        <p class="text-sm text-slate-500 mt-1">Inventaire, localisation et état opérationnel.</p>
+    </div>
+    <button onclick="document.getElementById('modal-add').classList.remove('hidden')" class="toolbar-button">
+        <span>+</span>
+        <span>Ajouter une machine</span>
+    </button>
 </div>
 
 @if(session('success'))
@@ -26,20 +32,34 @@
         </thead>
         <tbody class="divide-y divide-gray-100">
             @foreach($machines as $machine)
-            <tr>
-                <td class="px-6 py-4 font-bold text-gray-800">{{ $machine->nom }}</td>
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="font-bold text-gray-800">{{ $machine->nom }}</div>
+                    <div class="text-xs text-slate-400 mt-0.5">{{ $machine->numero_serie ?? 'Sans numéro de série' }}</div>
+                </td>
                 <td class="px-6 py-4 text-gray-500">{{ $machine->localisation }}</td>
                 <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold 
-                        {{ $machine->etat === 'active' ? 'bg-green-100 text-green-700' : ($machine->etat === 'panne' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700') }}">
+                    @php
+                        $etatClass = match($machine->etat) {
+                            'ACTIF' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            'PANNE' => 'bg-red-50 text-red-700 border-red-200',
+                            'MAINTENANCE' => 'bg-amber-50 text-amber-700 border-amber-200',
+                            default => 'bg-slate-50 text-slate-700 border-slate-200',
+                        };
+                    @endphp
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $etatClass }}">
                         ● {{ ucfirst($machine->etat) }}
                     </span>
                 </td>
                 <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('admin.machines.show', $machine) }}" class="text-sm font-bold text-slate-500 hover:text-slate-900">Voir</a>
+                        <a href="{{ route('admin.machines.edit', $machine) }}" class="text-sm font-bold text-brand-600 hover:text-brand-700">Modifier</a>
                     <form action="{{ route('admin.machines.destroy', $machine) }}" method="POST" onsubmit="return confirm('Supprimer ?')">
                         @csrf @method('DELETE')
-                        <button class="text-red-500 hover:underline font-bold">Supprimer</button>
+                        <button class="text-sm text-red-500 hover:text-red-700 font-bold">Supprimer</button>
                     </form>
+                    </div>
                 </td>
             </tr>
             @endforeach
@@ -47,33 +67,57 @@
     </table>
 </div>
 
+@if($machines->hasPages())
+    <div class="pagination-shell mt-6">
+        {{ $machines->links() }}
+    </div>
+@endif
+
 <!-- Modal Ajout -->
-<div id="modal-add" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl relative">
-        <h3 class="text-2xl font-extrabold text-gray-800 mb-6">Nouvelle Machine</h3>
+<div id="modal-add" class="modal-backdrop fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
+    <div class="modal-card w-full max-w-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between gap-6 border-b border-slate-200 px-8 py-6">
+            <div>
+                <p class="modal-kicker">Inventaire machine</p>
+                <h3 class="modal-title mt-1">Ajouter une machine</h3>
+                <p class="modal-subtitle mt-2">Renseignez les informations qui permettront de suivre l'équipement dans l'atelier.</p>
+            </div>
+            <button type="button" onclick="document.getElementById('modal-add').classList.add('hidden')" class="modal-close" aria-label="Fermer">×</button>
+        </div>
+
         <form action="{{ route('admin.machines.store') }}" method="POST">
             @csrf
-            <div class="space-y-4">
+            <div class="modal-scroll px-8 py-6 space-y-5">
                 <div>
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Nom du modèle</label>
-                    <input type="text" name="nom" required class="w-full border-gray-300 rounded-lg bg-gray-50">
+                    <label class="form-label">Nom du modèle</label>
+                    <input type="text" name="nom" value="{{ old('nom') }}" required class="form-control" placeholder="Ex : Presse hydraulique 50T">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="form-label">Localisation</label>
+                        <input type="text" name="localisation" value="{{ old('localisation') }}" required class="form-control" placeholder="Zone A - Secteur 1">
+                    </div>
+                    <div>
+                        <label class="form-label">Numéro de série</label>
+                        <input type="text" name="numero_serie" value="{{ old('numero_serie') }}" class="form-control" placeholder="PH-2026-001">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Localisation (Atelier/Secteur)</label>
-                    <input type="text" name="localisation" required class="w-full border-gray-300 rounded-lg bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-600 mb-1">État Initial</label>
-                    <select name="etat" class="w-full border-gray-300 rounded-lg bg-gray-50">
-                        <option value="active">Active</option>
-                        <option value="panne">Panne</option>
-                        <option value="maintenance">Maintenance</option>
+                    <label class="form-label">État initial</label>
+                    <select name="etat" required class="form-control">
+                        <option value="ACTIF" @selected(old('etat') === 'ACTIF')>Actif</option>
+                        <option value="PANNE" @selected(old('etat') === 'PANNE')>Panne</option>
+                        <option value="MAINTENANCE" @selected(old('etat') === 'MAINTENANCE')>Maintenance</option>
                     </select>
                 </div>
+                <div>
+                    <label class="form-label">Description</label>
+                    <textarea name="description" rows="3" class="form-control" placeholder="Informations utiles, contraintes, historique...">{{ old('description') }}</textarea>
+                </div>
             </div>
-            <div class="mt-8 flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('modal-add').classList.add('hidden')" class="text-gray-500 font-bold hover:underline">Annuler</button>
-                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg">Enregistrer</button>
+            <div class="flex justify-end gap-3 border-t border-slate-200 bg-slate-50/80 px-8 py-5">
+                <button type="button" onclick="document.getElementById('modal-add').classList.add('hidden')" class="btn-secondary">Annuler</button>
+                <button type="submit" class="btn-primary">Enregistrer la machine</button>
             </div>
         </form>
     </div>

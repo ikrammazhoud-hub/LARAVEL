@@ -1,6 +1,6 @@
 # 🏭 Atelier Pro — Plateforme de Gestion de Maintenance Industrielle
 
-> **Stack** : PHP 8.2 · Laravel 11 · SQLite/MySQL · Tailwind CSS · Alpine.js
+> **Stack** : PHP 8.3 · Laravel 13 · SQLite/MySQL · Tailwind CSS · Alpine.js
 
 ---
 
@@ -352,7 +352,7 @@ public function __construct(MachineRepository $repository)
 
 ## 📚 Ressources
 
-- [Laravel 11 Documentation](https://laravel.com/docs/11.x)
+- Laravel 13 Documentation
 - [Tailwind CSS](https://tailwindcss.com)
 - [Alpine.js](https://alpinejs.dev)
 - [DomPDF](https://github.com/barryvdh/laravel-dompdf)

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $machine_id
  * @property string $titre
  * @property string|null $description
- * @property string $priorite   (basse, normale, haute, urgente)
+ * @property string $priorite   (basse, moyenne, haute)
  * @property string $statut     (en attente, en cours, terminé)
  * @property \Carbon\Carbon|null $date_deadline
  * @property \Carbon\Carbon $created_at
@@ -41,7 +41,7 @@ class Tache extends Model
     public const STATUTS = ['en attente', 'en cours', 'terminé'];
 
     /** Niveaux de priorité. */
-    public const PRIORITES = ['basse', 'normale', 'haute', 'urgente'];
+    public const PRIORITES = ['basse', 'moyenne', 'haute'];
 
     /* ------------------------------------------------------------------ */
     /*  Relations                                                           */
@@ -99,10 +99,9 @@ class Tache extends Model
     public function prioriteBadgeClass(): string
     {
         return match ($this->priorite) {
-            'urgente' => 'badge-danger',
-            'haute'   => 'badge-warning',
-            'normale' => 'badge-info',
-            'basse'   => 'badge-secondary',
+            'haute'   => 'badge-danger',
+            'moyenne' => 'badge-warning',
+            'basse'   => 'badge-info',
             default   => 'badge-secondary',
         };
     }

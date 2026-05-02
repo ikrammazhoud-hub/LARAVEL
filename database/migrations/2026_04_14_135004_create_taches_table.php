@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('taches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('technicien_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('machine_id')->nullable()->constrained()->nullOnDelete();
             $table->string('titre');
             $table->text('description')->nullable();
             $table->enum('priorite', ['basse', 'moyenne', 'haute'])->default('moyenne');

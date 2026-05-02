@@ -1,9 +1,7 @@
 [x-cloak] { display: none !important; }
 
-/* Smooth scrolling & global adjustments */
 html { scroll-behavior: smooth; }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }

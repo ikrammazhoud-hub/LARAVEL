@@ -71,10 +71,11 @@
 
             {{-- Date limite --}}
             <div class="space-y-1.5">
-                <label for="date_deadline" class="block text-sm font-semibold text-slate-700">Date limite</label>
+                <label for="date_deadline" class="block text-sm font-semibold text-slate-700">Date limite <span class="text-red-500">*</span></label>
                 <input type="date" id="date_deadline" name="date_deadline"
                     value="{{ old('date_deadline') }}"
                     min="{{ date('Y-m-d') }}"
+                    required
                     class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                 @error('date_deadline')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>

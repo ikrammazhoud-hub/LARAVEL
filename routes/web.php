@@ -26,6 +26,13 @@ Route::get('/test-session-get', function () {
 
 Route::middleware('auth')->group(function () {
 
+    // Point d'entrée commun utilisé par Breeze après login/verification.
+    Route::get('/dashboard', function () {
+        return auth()->user()->role === 'technicien'
+            ? redirect()->route('technicien.dashboard')
+            : redirect()->route('admin.dashboard');
+    })->name('dashboard');
+
     // ── Profil utilisateur ────────────────────────────────────────────────
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -84,6 +91,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/dashboard', [\App\Http\Controllers\TechnicienController::class, 'dashboard'])
                 ->name('dashboard');
 
+            // Liste paginée et historique des tâches du technicien
+            Route::get('/taches', [\App\Http\Controllers\TechnicienController::class, 'taches'])
+                ->name('taches.index');
+
             // Mise à jour du statut d'une tâche
             Route::patch('/taches/{tache}/statut', [\App\Http\Controllers\TechnicienController::class, 'updateStatut'])
                 ->name('taches.statut');
@@ -97,6 +108,10 @@ Route::middleware('auth')->group(function () {
                 ->name('notifications.index');
             Route::patch('/notifications/{id}/lue', [NotificationController::class, 'marquerLue'])
                 ->name('notifications.marquer-lue');
+            Route::patch('/notifications/toutes-lues', [NotificationController::class, 'marquerToutesLues'])
+                ->name('notifications.marquer-toutes-lues');
+            Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])
+                ->name('notifications.destroy');
         });
 });
 

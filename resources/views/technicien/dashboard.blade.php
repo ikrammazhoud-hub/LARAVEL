@@ -1,81 +1,175 @@
 @extends('layouts.technicien')
 
+@section('header', 'Tableau de bord')
+@section('subheader', 'Vos priorités, votre avancement et les prochaines interventions à traiter.')
+
 @section('content')
-<div class="mb-8 flex justify-between items-center">
-    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Mes Tâches Assignées</h1>
+@php
+    $mainTask = $nextTaches->first();
+@endphp
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <div class="metric-card">
+        <p class="metric-label">Tâches totales</p>
+        <div class="mt-4 flex items-end justify-between">
+            <span class="metric-value">{{ $stats['total'] }}</span>
+            <span class="status-dot bg-slate-400"></span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <p class="metric-label">En cours</p>
+        <div class="mt-4 flex items-end justify-between">
+            <span class="metric-value text-blue-600">{{ $stats['en_cours'] }}</span>
+            <span class="status-dot bg-blue-500"></span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <p class="metric-label">Terminées</p>
+        <div class="mt-4 flex items-end justify-between">
+            <span class="metric-value text-emerald-600">{{ $stats['terminees'] }}</span>
+            <span class="status-dot bg-emerald-500"></span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <p class="metric-label">En retard</p>
+        <div class="mt-4 flex items-end justify-between">
+            <span class="metric-value text-red-600">{{ $stats['en_retard'] }}</span>
+            <span class="status-dot bg-red-500"></span>
+        </div>
+    </div>
 </div>
 
-<div class="bg-white shadow-lg rounded-2xl border border-slate-100 overflow-hidden">
-    <ul class="divide-y divide-slate-100">
-        @forelse($taches as $tache)
-        <li class="p-8 transition-colors hover:bg-slate-50 relative group" x-data="{ showForm: false }">
-            <div class="flex items-start justify-between">
-                <div class="flex-1 pr-6">
-                    <h3 class="text-xl font-bold text-slate-900 mb-1">{{ $tache->titre }}</h3>
-                    <p class="text-slate-500 text-sm mb-4 leading-relaxed">{{ $tache->description ?? 'Aucune instruction supplémentaire détaillée.' }}</p>
-                    
-                    <div class="flex items-center space-x-3 text-xs uppercase tracking-wide font-bold">
-                        <span class="text-slate-400 bg-slate-100 px-3 py-1 rounded-full">⏳ {{ $tache->date_deadline->format('d M Y') }}</span>
-                        
-                        <span class="px-3 py-1 rounded-full shadow-sm
-                            {{ $tache->priorite === 'haute' ? 'bg-red-500 text-white' : ($tache->priorite === 'moyenne' ? 'bg-amber-400 text-white' : 'bg-green-500 text-white') }}">
-                            {{ ucfirst($tache->priorite) }}
-                        </span>
-                        
-                        <span class="px-3 py-1 rounded-full border
-                            {{ $tache->statut === 'en attente' ? 'text-slate-600 border-slate-300' : ($tache->statut === 'en cours' ? 'text-blue-600 border-blue-300 bg-blue-50' : 'text-emerald-600 border-emerald-300 bg-emerald-50') }}">
-                            {{ ucfirst($tache->statut) }}
-                        </span>
-                    </div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+    <section class="xl:col-span-2 space-y-8">
+        <div class="glass-panel rounded-lg border border-white/70 overflow-hidden">
+            <div class="p-7 border-b border-slate-200/70 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <p class="modal-kicker">Mission prioritaire</p>
+                    <h3 class="text-2xl font-extrabold text-slate-900 mt-1">
+                        {{ $mainTask?->titre ?? 'Aucune intervention active' }}
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-2 max-w-2xl">
+                        @if($mainTask)
+                            {{ $mainTask->description ?: 'Aucune consigne détaillée pour cette tâche.' }}
+                        @else
+                            Votre planning est propre. Les prochaines tâches apparaîtront ici dès leur assignation.
+                        @endif
+                    </p>
                 </div>
-
-                <div class="flex flex-col items-end space-y-3 min-w-[200px]">
-                    @if($tache->statut === 'en attente')
-                    <form action="{{ route('technicien.taches.statut', $tache) }}" method="POST" class="w-full">
-                        @csrf @method('PATCH')
-                        <input type="hidden" name="statut" value="en cours">
-                        <button class="w-full bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all font-semibold text-sm cursor-pointer">Démarrer Intervention</button>
-                    </form>
-                    @elseif($tache->statut === 'en cours')
-                    <button @click="showForm = !showForm" class="w-full bg-emerald-500 text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-emerald-600 hover:shadow-lg transition-all font-semibold text-sm cursor-pointer border border-emerald-400">
-                        Rédiger Rapport
-                    </button>
-                    @else
-                    <span class="text-emerald-500 font-extrabold flex items-center text-sm uppercase tracking-wider bg-emerald-50 px-4 py-2 rounded-lg"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Clôturée</span>
-                    @endif
-                </div>
+                <a href="{{ $mainTask ? route('technicien.taches.index', ['focus' => $mainTask->id]) . '#task-' . $mainTask->id : route('technicien.taches.index') }}" class="btn-primary shrink-0">
+                    Ouvrir mes tâches
+                </a>
             </div>
 
-            <!-- Formulaire de rapport -->
-            <div x-show="showForm" x-cloak class="mt-8 bg-white border-2 border-slate-200 rounded-xl p-6 shadow-sm relative overflow-hidden" x-transition.opacity.duration.300ms>
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-400"></div>
-                <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">✍️ Rapport d'Intervention</h4>
-                <form action="{{ route('technicien.taches.rapport', $tache) }}" method="POST" target="_blank" x-on:submit="setTimeout(() => window.location.reload(), 1500)">
-                    @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">ID Machine Concernee</label>
-                            <input type="number" name="machine_id" required class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 px-4 py-2" placeholder="ID Machine">
+            @if($mainTask)
+                <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200/70">
+                    <div class="p-6">
+                        <p class="metric-label">Machine</p>
+                        <p class="mt-2 font-extrabold text-slate-900">{{ $mainTask->machine?->nom ?? 'Non liée' }}</p>
+                        <p class="text-sm text-slate-500 mt-1">{{ $mainTask->machine?->localisation ?? 'Aucune localisation' }}</p>
+                    </div>
+                    <div class="p-6">
+                        <p class="metric-label">Échéance</p>
+                        <p class="mt-2 font-extrabold {{ $mainTask->estEnRetard() ? 'text-red-600' : 'text-slate-900' }}">
+                            {{ $mainTask->date_deadline?->format('d/m/Y') }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">{{ $mainTask->estEnRetard() ? 'Action urgente' : $mainTask->date_deadline?->diffForHumans() }}</p>
+                    </div>
+                    <div class="p-6">
+                        <p class="metric-label">Statut</p>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <span class="task-pill {{ $mainTask->statut === 'en cours' ? 'task-pill-blue' : 'task-pill-slate' }}">{{ ucfirst($mainTask->statut) }}</span>
+                            <span class="task-pill {{ $mainTask->priorite === 'haute' ? 'task-pill-red' : ($mainTask->priorite === 'moyenne' ? 'task-pill-amber' : 'task-pill-emerald') }}">{{ ucfirst($mainTask->priorite) }}</span>
                         </div>
                     </div>
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Compte Rendu Détaillé</label>
-                        <textarea name="contenu" rows="4" required class="block w-full border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50 px-4 py-3" placeholder="Quelles actions ont été menées ?"></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" @click="showForm = false" class="text-slate-600 px-5 py-2 font-semibold hover:bg-slate-100 rounded-lg transition-colors">Annuler</button>
-                        <button type="submit" class="bg-slate-900 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-slate-800 transition-colors">Finaliser et Soumettre</button>
-                    </div>
-                </form>
-            </div>
-        </li>
-        @empty
-        <div class="p-16 text-center">
-            <span class="text-6xl block mb-4">🍃</span>
-            <h3 class="text-xl font-bold text-slate-400">Aucune tâche assignée.</h3>
-            <p class="text-slate-500 mt-2">Votre emploi du temps est libre.</p>
+                </div>
+            @endif
         </div>
-        @endforelse
-    </ul>
+
+        <div class="glass-panel rounded-lg border border-white/70 overflow-hidden">
+            <div class="p-6 border-b border-slate-200/70 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-900">File de travail</h3>
+                    <p class="text-sm text-slate-500 mt-1">Les interventions ouvertes, triées par urgence.</p>
+                </div>
+                <a href="{{ route('technicien.taches.index') }}" class="text-sm font-extrabold text-brand-600 hover:text-brand-700">Tout voir</a>
+            </div>
+
+            <div class="divide-y divide-slate-200/70">
+                @forelse($nextTaches as $tache)
+                    <a href="{{ route('technicien.taches.index', ['focus' => $tache->id]) }}#task-{{ $tache->id }}" class="block p-5 hover:bg-white/70 transition">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="task-pill {{ $tache->priorite === 'haute' ? 'task-pill-red' : ($tache->priorite === 'moyenne' ? 'task-pill-amber' : 'task-pill-emerald') }}">{{ ucfirst($tache->priorite) }}</span>
+                                    <span class="task-pill {{ $tache->statut === 'en cours' ? 'task-pill-blue' : 'task-pill-slate' }}">{{ ucfirst($tache->statut) }}</span>
+                                </div>
+                                <p class="font-extrabold text-slate-900">{{ $tache->titre }}</p>
+                                <p class="text-sm text-slate-500 mt-1">{{ $tache->machine?->nom ?? 'Aucune machine liée' }}</p>
+                            </div>
+                            <div class="text-sm font-bold {{ $tache->estEnRetard() ? 'text-red-600' : 'text-slate-500' }}">
+                                {{ $tache->date_deadline?->format('d/m/Y') }}
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="p-10 text-center">
+                        <p class="text-lg font-extrabold text-slate-700">Aucune tâche ouverte</p>
+                        <p class="text-sm text-slate-500 mt-2">Les tâches en attente et en cours s'afficheront ici.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    <aside class="space-y-8">
+        <div class="glass-panel rounded-lg border border-white/70 p-7">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="modal-kicker">Progression</p>
+                    <h3 class="text-xl font-extrabold text-slate-900 mt-1">{{ $stats['completion'] }}% clôturé</h3>
+                </div>
+                <span class="w-12 h-12 rounded-xl bg-brand-50 text-brand-700 border border-brand-100 flex items-center justify-center font-black">
+                    {{ $stats['completion'] }}
+                </span>
+            </div>
+            <div class="h-3 rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-500" style="width: {{ $stats['completion'] }}%"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <a href="{{ route('technicien.taches.index', ['statut' => 'pending']) }}" class="rounded-lg bg-white/70 border border-slate-200 p-4 hover:border-brand-200 transition">
+                    <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">En attente</p>
+                    <p class="text-2xl font-black text-slate-900 mt-1">{{ $stats['en_attente'] }}</p>
+                </a>
+                <a href="{{ route('technicien.taches.index', ['statut' => 'active']) }}" class="rounded-lg bg-white/70 border border-slate-200 p-4 hover:border-brand-200 transition">
+                    <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">En cours</p>
+                    <p class="text-2xl font-black text-blue-600 mt-1">{{ $stats['en_cours'] }}</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-lg border border-white/70 overflow-hidden">
+            <div class="p-6 border-b border-slate-200/70">
+                <h3 class="text-xl font-extrabold text-slate-900">Dernières tâches clôturées</h3>
+                <p class="text-sm text-slate-500 mt-1">Votre historique récent.</p>
+            </div>
+            <div class="divide-y divide-slate-200/70">
+                @forelse($recentCompleted as $tache)
+                    <div class="p-5">
+                        <p class="font-extrabold text-slate-900">{{ $tache->titre }}</p>
+                        <p class="text-sm text-slate-500 mt-1">{{ $tache->machine?->nom ?? 'Aucune machine liée' }}</p>
+                        <p class="text-xs font-bold text-emerald-600 mt-2">Clôturée {{ $tache->updated_at->diffForHumans() }}</p>
+                    </div>
+                @empty
+                    <div class="p-8 text-center">
+                        <p class="font-bold text-slate-500">Aucune tâche clôturée pour le moment.</p>
+                    </div>
+                @endforelse
+            </div>
+            <div class="p-5 bg-slate-50/70 border-t border-slate-200/70">
+                <a href="{{ route('technicien.taches.index', ['statut' => 'done']) }}" class="btn-secondary w-full">Voir l'historique</a>
+            </div>
+        </div>
+    </aside>
 </div>
 @endsection

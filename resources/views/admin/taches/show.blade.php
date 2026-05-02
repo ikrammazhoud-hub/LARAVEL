@@ -48,9 +48,9 @@
                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Priorité</p>
                 @php
                     $pc = match($tache->priorite) {
-                        'urgente' => 'bg-red-100 text-red-700',
-                        'haute'   => 'bg-orange-100 text-orange-700',
-                        'normale' => 'bg-sky-100 text-sky-700',
+                        'haute'   => 'bg-red-100 text-red-700',
+                        'moyenne' => 'bg-orange-100 text-orange-700',
+                        'basse'   => 'bg-sky-100 text-sky-700',
                         default   => 'bg-slate-100 text-slate-600',
                     };
                 @endphp

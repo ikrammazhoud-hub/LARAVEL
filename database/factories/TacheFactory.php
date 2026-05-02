@@ -30,7 +30,7 @@ class TacheFactory extends Factory
                 'Test de pression',
             ]) . ' — ' . $this->faker->word(),
             'description'   => $this->faker->optional()->paragraph(2),
-            'priorite'      => $this->faker->randomElement(['basse', 'normale', 'haute', 'urgente']),
+            'priorite'      => $this->faker->randomElement(['basse', 'moyenne', 'haute']),
             'statut'        => $this->faker->randomElement(['en attente', 'en cours', 'terminé']),
             'date_deadline' => $this->faker->optional()->dateTimeBetween('now', '+30 days'),
         ];
@@ -38,7 +38,7 @@ class TacheFactory extends Factory
 
     public function urgente(): static
     {
-        return $this->state(['priorite' => 'urgente', 'statut' => 'en attente']);
+        return $this->state(['priorite' => 'haute', 'statut' => 'en attente']);
     }
 
     public function terminee(): static

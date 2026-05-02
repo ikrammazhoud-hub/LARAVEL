@@ -1,6 +1,7 @@
-@extends('layouts.admin')
+@extends($notificationLayout ?? 'layouts.admin')
 
-@section('title', 'Notifications')
+@section('header', 'Notifications')
+@section('subheader', 'Suivez les alertes et les mises à jour importantes de votre espace.')
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
@@ -14,7 +15,7 @@
             </p>
         </div>
         @if($nonLues > 0)
-        <form method="POST" action="{{ route('admin.notifications.marquer-toutes-lues') }}">
+        <form method="POST" action="{{ route($notificationRoutePrefix . '.marquer-toutes-lues') }}">
             @csrf @method('PATCH')
             <button type="submit"
                 class="inline-flex items-center gap-2 text-sm text-brand-600 hover:text-brand-700 font-semibold border border-brand-200 hover:bg-brand-50 px-4 py-2 rounded-xl transition-all">
@@ -71,7 +72,7 @@
             {{-- Actions --}}
             <div class="shrink-0 flex items-center gap-1">
                 @if(!$notif->lu)
-                <form method="POST" action="{{ route('admin.notifications.marquer-lue', $notif) }}">
+                <form method="POST" action="{{ route($notificationRoutePrefix . '.marquer-lue', $notif) }}">
                     @csrf @method('PATCH')
                     <button type="submit" title="Marquer comme lu"
                         class="text-slate-400 hover:text-brand-600 transition-colors p-1">
@@ -79,7 +80,7 @@
                     </button>
                 </form>
                 @endif
-                <form method="POST" action="{{ route('admin.notifications.destroy', $notif) }}"
+                <form method="POST" action="{{ route($notificationRoutePrefix . '.destroy', $notif) }}"
                       onsubmit="return confirm('Supprimer cette notification ?')">
                     @csrf @method('DELETE')
                     <button type="submit" title="Supprimer"
